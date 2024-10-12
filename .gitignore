@@ -1,1 +1,3 @@
 .env
+demos/*/account.json
+demos/*/keyfile.json
