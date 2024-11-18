@@ -179,15 +179,3 @@ function _constructOZAccountData(publicKey) {
 //         console.log('✅ New Ethereum account final address =', getChecksumAddress(contract_address));
 //     }
 // }
-
-async function main() {
-    const privateKey = process.env.PRIVATE_KEY
-
-    // await createArgentAccount(privateKey);
-
-    // await createOZAccount(privateKey);
-
-    // await createEthAccount(privateKey,true);
-}
-
-main();
