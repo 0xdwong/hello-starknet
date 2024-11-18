@@ -4,25 +4,23 @@ const { ArgentXAccountClassHash, OZAccountClassHash } = require('./constants');
 
 
 
-async function createArgentAccount() {
-    let privateKey = stark.randomAddress();
-    privateKey = process.env.PRIVATE_KEY
+async function createArgentAccount(privateKey, deploy = false) {
+    if (!privateKey) stark.randomAddress();
 
     const type = 'argent';
 
-    return await _createAccount(privateKey, type);
+    return await _createAccount(privateKey, type, deploy);
 }
 
-async function createOZAccount() {
-    let privateKey = stark.randomAddress();
-    privateKey = process.env.PRIVATE_KEY
+async function createOZAccount(privateKey, deploy = false) {
+    if (!privateKey) stark.randomAddress();
 
     const type = 'oz';
 
-    return await _createAccount(privateKey, type);
+    return await _createAccount(privateKey, type, deploy);
 }
 
-async function _createAccount(privateKey, type) {
+async function _createAccount(privateKey, type, deploy = false) {
     const publicKey = ec.starkCurve.getStarkKey(privateKey);
 
     const constructorCallData = _getConstructorCalldata(publicKey, type);
@@ -50,20 +48,22 @@ async function _createAccount(privateKey, type) {
     console.log('address=', contractAddress);
 
     // deploy
-    // const nodeUrl = process.env.PROVIDER_URL || constants.NetworkName.SN_SEPOLIA;
-    // const provider = new RpcProvider({ nodeUrl });
-    // const account = new Account(provider, contractAddress, privateKey);
+    if (deploy) {
+        const nodeUrl = process.env.PROVIDER_URL || constants.NetworkName.SN_SEPOLIA;
+        const provider = new RpcProvider({ nodeUrl });
+        const account = new Account(provider, contractAddress, privateKey);
 
-    // const payload = {
-    //     'classHash': accountClassHash,
-    //     'constructorCalldata': constructorCallData,
-    //     'contractAddress': contractAddress,
-    //     'addressSalt': publicKey,
-    // };
+        const payload = {
+            'classHash': accountClassHash,
+            'constructorCalldata': constructorCallData,
+            'contractAddress': contractAddress,
+            'addressSalt': publicKey,
+        };
 
-    // const { transaction_hash, contract_address } = await account.deployAccount(payload);
-    // console.log('✅ wallet deployed at:', contract_address);
-    // console.log('deploy transaction hash:', transaction_hash);
+        const { transaction_hash, contract_address } = await account.deployAccount(payload);
+        console.log('✅ wallet deployed at:', getChecksumAddress(contract_address));
+        console.log('deploy transaction hash:', transaction_hash);
+    }
 }
 
 function _accountClassHash(type) {
@@ -117,9 +117,11 @@ function _constructOZAccountData(publicKey) {
 }
 
 async function main() {
-    await createArgentAccount();
+    const privateKey = process.env.PRIVATE_KEY
 
-    // await createOZAccount();
+    // await createArgentAccount(privateKey);
+
+    // await createOZAccount(privateKey);
 }
 
 main();
